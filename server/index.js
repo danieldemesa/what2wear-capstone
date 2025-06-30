@@ -3,40 +3,45 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
-// 🔗 Route Imports
+
 const authRoutes = require('./routes/authRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const outfitRoutes = require('./routes/outfitRoutes');
+const savedLookRoutes = require('./routes/savedLookRoutes');
+
+
 
 const requireAuth = require('./middleware/authMiddleware');
 
-// 🔧 Load .env
+
 dotenv.config();
 
-// 🔨 App Setup
+
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// 🔐 Middleware
+
 app.use(cors());
 app.use(express.json());
 
-// 📦 Routes
+
 app.use('/api/auth', authRoutes);
 app.use('/api', uploadRoutes);
 app.use('/api/outfits', outfitRoutes);
+app.use('/api/saved-looks', savedLookRoutes);
 
-// 🔒 Test Protected Route
+
+
 app.get('/api/protected', requireAuth, (req, res) => {
-  res.json({ message: `🔒 Protected data: User ID = ${req.user.id}` });
+  res.json({ message: `🔒 You are authorized, User ID: ${req.user.userId}` });
 });
 
-// ✅ Root Route
+
 app.get('/', (req, res) => {
-  res.send('What2Wear API is running...');
+  res.send('🌤️ What2Wear API is running...');
 });
 
-// ⚡ MongoDB Connection
+
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log('✅ Connected to MongoDB Atlas');
