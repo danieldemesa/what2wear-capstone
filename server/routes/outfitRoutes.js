@@ -1,34 +1,32 @@
 const express = require('express');
 const router = express.Router();
-const requireAuth = require('../middleware/authMiddleware');
 const Outfit = require('../models/Outfit');
+const requireAuth = require('../middleware/authMiddleware');
 
-// 🔒 GET all outfits for the logged-in user
-router.get('/', requireAuth, async (req, res) => {
+// Save an outfit item
+router.post('/', requireAuth, async (req, res) => {
+  const { imageUrl, category, season } = req.body;
   try {
-    const outfits = await Outfit.find({ user: req.user.id }).sort({ createdAt: -1 });
-    res.status(200).json(outfits);
+    const outfit = new Outfit({
+      user: req.user.userId,
+      imageUrl,
+      category,
+      season,
+    });
+    await outfit.save();
+    res.status(201).json(outfit);
   } catch (err) {
-    res.status(500).json({ error: 'Server error while fetching outfits.' });
+    res.status(500).json({ error: '❌ Failed to save outfit' });
   }
 });
 
-// 🔒 POST a new outfit
-router.post('/', requireAuth, async (req, res) => {
+// Get all outfit items
+router.get('/', requireAuth, async (req, res) => {
   try {
-    const { title, description, imageUrl } = req.body;
-
-    const newOutfit = new Outfit({
-      user: req.user.id,
-      title,
-      description,
-      imageUrl
-    });
-
-    const savedOutfit = await newOutfit.save();
-    res.status(201).json(savedOutfit);
+    const outfits = await Outfit.find({ user: req.user.userId });
+    res.json(outfits);
   } catch (err) {
-    res.status(500).json({ error: 'Server error while saving outfit.' });
+    res.status(500).json({ error: '❌ Failed to fetch outfits' });
   }
 });
 

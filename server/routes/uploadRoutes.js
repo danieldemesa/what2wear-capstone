@@ -3,45 +3,52 @@ const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cloudinary = require('cloudinary').v2;
 const requireAuth = require('../middleware/authMiddleware');
-require('dotenv').config(); // ✅ Load env variables here
+const Outfit = require('../models/Outfit');
+require('dotenv').config();
 
 const router = express.Router();
 
-// 🔍 Debug: Check if Cloudinary env variables are present
-console.log('Cloudinary config check:', {
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET ? '✅ SET' : '❌ MISSING'
-});
-
-// 🔧 Cloudinary Configuration
+// Cloudinary config
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// 📦 Set up multer storage with Cloudinary
 const storage = new CloudinaryStorage({
   cloudinary,
-  params: {
+  params: async (req) => ({
     folder: 'what2wear',
-    allowed_formats: ['jpg', 'jpeg', 'png']
-  }
+    format: 'jpg',
+    public_id: `${Date.now()}`,
+  }),
 });
 
 const upload = multer({ storage });
 
-// 🔒 POST /api/upload — Protected route
-router.post('/upload', requireAuth, upload.single('image'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No image uploaded' });
-  }
+// Upload and save outfit
+router.post('/upload', requireAuth, upload.single('image'), async (req, res) => {
+  try {
+    const { category, season } = req.body;
 
-  res.status(200).json({
-    message: '✅ Image uploaded successfully',
-    imageUrl: req.file.path
-  });
+    if (!req.file || !category || !season) {
+      return res.status(400).json({ error: 'All fields are required (image, category, season)' });
+    }
+
+    const newOutfit = new Outfit({
+      user: req.user.userId,
+      imageUrl: req.file.path,
+      category,
+      season,
+    });
+
+    await newOutfit.save();
+
+    res.status(201).json({ message: '✅ Upload and save successful!', outfit: newOutfit });
+  } catch (err) {
+    console.error('❌ Error uploading image:', err);
+    res.status(500).json({ error: 'Upload failed' });
+  }
 });
 
 module.exports = router;
