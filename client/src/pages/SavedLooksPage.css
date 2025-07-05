@@ -1,36 +1,41 @@
-.saved-looks-container {
-  padding: 2rem;
+.saved-looks-page {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
   text-align: center;
+}
+
+.generate-btn {
+  background-color: #65bfa2;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  margin-bottom: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 8px;
+  width: 100%;
 }
 
 .looks-grid {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 1rem;
-  margin-top: 2rem;
+  gap: 20px;
 }
 
 .look-card {
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  padding: 1rem;
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   width: 250px;
-  background: #fff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.look-card img {
-  max-width: 100%;
+.outfit-images img {
+  width: 60px;
+  height: 60px;
+  margin: 5px;
+  object-fit: cover;
   border-radius: 6px;
-  margin-bottom: 0.5rem;
-}
-
-.look-card button {
-  background-color: #ff4d4d;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  border-radius: 5px;
 }
